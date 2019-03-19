@@ -1,0 +1,168 @@
+﻿@model List<AgendaModel>
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Home Page";
+    var cont = 0;
+    var heading = "heading";
+}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1><label>Agenda</label></h1>
+        </div>
+    </div>
+    <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="SalvarAgenda">
+        <h5><label>Nome</label></h5>
+            <div class="row">
+                <div class="col-lg-9">
+                    <input id="nome" type="text" class="form-control" name="nome" required/>
+                </div>
+                <div class="col-lg-2">
+                    <button type="submit" class="btn btn-primary">Adicionar Contato +</button>
+                </div>
+            </div>
+    </form>
+    <div class="row">
+        @if (Model.Count > 0)
+        {
+            @foreach (var a in Model.ToList())
+            {
+                <div id="accordion">
+                    <div class="card">
+                        <div class="card-header" id="@heading@cont">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#@cont" aria-expanded="false" aria-controls="@cont">
+                                    @a.Nome
+                                </button>
+                                <button type="button" class="btn btn-danger" title="Apagar o Nome" onclick="DeleteAgenda(@a.Id)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </h5>
+                        </div>
+
+                        <div id="@cont" class="collapse" aria-labelledby="@heading@cont" data-parent="#accordion">
+                            <div class="card-body">
+                                <h3>
+                                    Contatos
+                                    <button type="button" class="btn btn-info btn-xs openPopup" data-toggle="modal" data-target="#ContatoModal"><i class="fa fa-plus"></i></button>
+                                </h3>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" style="text-align:center">Email</th>
+                                            <th scope="col" style="text-align:center">Numero</th>
+                                            <th scope="col" style="text-align:center">Excluir</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (a.Contatos != null)
+                                        {
+                                            @foreach (var c in a.Contatos.ToList())
+                                            {
+                                                <tr>
+                                                    <td>@c.Email</td>
+                                                    <td>@c.Telefone</td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-danger" title="Apagar Contato" onclick="DeleteContato(@c.Id)">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade bd-example-modal-md" id="ContatoModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+                    <div class="modal-dialog modal-md" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">Produtos do Faturamento</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form asp-area="" asp-controller="Home" asp-action="SaveContato">
+                                    <input id="AgendasID" type="hidden" value=@a.Id name="AgendasID" runat="server" />
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <h5><label>E-mail</label></h5>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <h5><label>Telefone</label></h5>
+                                        </div>
+                                    </div>
+                                        <div class="row">
+                                            <div class="col-lg-4">
+                                                <input id="Email" type="email" class="form-control" name="Email" required />
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <input id="Telefone" type="text" class="form-control" onkeyup="mascara(this, mtel);" name="Telefone" maxlength="15"  required />
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <button type="submit" class="btn btn-primary" title="Adicionar Contato">Adicionar Contato +</button>
+                                            </div>
+                                        </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                cont = cont + 1;
+            }
+        }
+                        </div>
+
+                    </div>
+       
+<script>
+    function mascara(o, f) {
+        v_obj = o
+        v_fun = f
+        setTimeout("execmascara()", 1)
+    }
+    function execmascara() {
+        v_obj.value = v_fun(v_obj.value)
+    }
+    function mtel(v) {
+        v = v.replace(/\D/g, "");             //Remove tudo o que não é dígito
+        v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); //Coloca parênteses em volta dos dois primeiros dígitos
+        v = v.replace(/(\d)(\d{4})$/, "$1-$2");    //Coloca hífen entre o quarto e o quinto dígitos
+        return v;
+    }
+
+        function DeleteAgenda(id) {
+        var dados = {
+            ID: id
+        };
+
+        $.post({
+            url: '@Url.Action("DeleteAgenda")',
+            data: dados,
+            type: 'DELETE',
+            success: function (data, status) {
+                alert('Deletado com sucesso');
+                location.href = '@Url.Action("Index")';
+            }
+        });
+    }
+
+    function DeleteContato(id) {
+        var dados = {
+            ID: id
+        };
+
+        $.post({
+            url: '@Url.Action("DeleteContato")',
+            data: dados,
+            type: 'DELETE',
+            success: function (data, status) {
+                alert('Deletado com sucesso');
+                location.href = '@Url.Action("Index")';
+            }
+        });
+    }
+                    </script>
