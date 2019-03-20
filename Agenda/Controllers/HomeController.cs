@@ -24,23 +24,12 @@ namespace Agenda.Controllers
             contatos = _contatos as ContatosRepository;
         }
 
-        public ActionResult Index()
+        public ActionResult Index(String nome)
         {
             var models = new List<AgendaModel>();
-            //if (agendas.GetUnid() == 0)
-            //{
-            //    var model = new AgendaModel
-            //    {
-            //        Id = 1,
-            //        Nome = "",
-            //        Status = false,
-            //    };
-            //    models.Add(model);
-            //}
-            //else
-            //{
-
-                foreach(var age in agendas.GetAll())
+            if (nome != null)
+            {
+                foreach (var age in PesquisarAgenda(nome))
                 {
                     var modelAgenda = new AgendaModel
                     {
@@ -49,9 +38,10 @@ namespace Agenda.Controllers
                         Status = age.Status
                     };
                     modelAgenda.Contatos = new List<ContatoModel>();
-                    foreach (var cont in contatos.GetAll())
+                    foreach (var cont in contatos.GetAll().OrderBy(a => a.Email).ToList())
                     {
-                        if (cont.AgendasID == age.Id) {
+                        if (cont.AgendasID == age.Id)
+                        {
                             var modelCont = new ContatoModel
                             {
                                 Id = cont.Id,
@@ -63,20 +53,39 @@ namespace Agenda.Controllers
                             modelAgenda.Contatos.Add(modelCont);
                         }
                     }
-
                     models.Add(modelAgenda);
                 }
-            //}
-            
-
-                //models = agendas.GetAll();
-
-            return View(models);
-        }
-
-        public ActionResult AdicionarAgenda()
-        {
-            return View();
+            }
+            else
+            {
+                foreach (var age in agendas.GetAll())
+                {
+                    var modelAgenda = new AgendaModel
+                    {
+                        Id = age.Id,
+                        Nome = age.Nome,
+                        Status = age.Status
+                    };
+                    modelAgenda.Contatos = new List<ContatoModel>();
+                    foreach (var cont in contatos.GetAll().OrderBy(a => a.Email).ToList())
+                    {
+                        if (cont.AgendasID == age.Id)
+                        {
+                            var modelCont = new ContatoModel
+                            {
+                                Id = cont.Id,
+                                AgendasID = cont.AgendasID,
+                                Email = cont.Email,
+                                Status = cont.Status,
+                                Telefone = cont.Telefone
+                            };
+                            modelAgenda.Contatos.Add(modelCont);
+                        }
+                    }
+                    models.Add(modelAgenda);
+                }
+            }
+            return View(models.OrderBy(a => a.Nome).ToList());
         }
 
         public ActionResult SalvarAgenda(String nome)
@@ -122,5 +131,13 @@ namespace Agenda.Controllers
             contatos.Save();
             return RedirectToAction("Index");
         }
+
+        public List<Agendas> PesquisarAgenda(String nomePesquisa)
+        {
+            var agenda = agendas.GetAllFiltro(nomePesquisa);
+            return agenda;
+        }
+
+        
     }
 }

@@ -3,6 +3,7 @@
 @{
     var cont = 0;
     var heading = "heading";
+    var contatoModal = "contatoModal";
 }
 
 <div class="container">
@@ -11,17 +12,29 @@
             <h1><label>Agenda</label></h1>
         </div>
     </div>
-    <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="SalvarAgenda">
-        <h5><label>Nome</label></h5>
-            <div class="row">
-                <div class="col-lg-9">
-                    <input id="nome" type="text" class="form-control" name="nome" required/>
-                </div>
-                <div class="col-lg-2">
-                    <button type="submit" class="btn btn-primary">Adicionar Contato +</button>
-                </div>
+    <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="Index">
+        <h5><label> Filtrar por Nome</label></h5>
+        <div class="row">
+            <div class="col-lg-4">
+                <input id="nome" type="text" class="form-control" name="nome" />
             </div>
+            <div class="col-lg-2">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+            </div>
+        </div>
     </form>
+    <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="SalvarAgenda">
+        <h5><label> Inserir Nome</label></h5>
+        <div class="row">
+            <div class="col-lg-4">
+                <input id="nome" type="text" class="form-control" name="nome" required />
+            </div>
+            <div class="col-lg-2">
+                <button type="submit" class="btn btn-primary">Adicionar Contato +</button>
+            </div>
+        </div>
+    </form>
+
     <div class="row">
         @if (Model.Count > 0)
         {
@@ -44,7 +57,7 @@
                             <div class="card-body">
                                 <h3>
                                     Contatos
-                                    <button type="button" class="btn btn-info btn-xs openPopup" data-toggle="modal" data-target="#ContatoModal"><i class="fa fa-plus"></i></button>
+                                    <button type="button" class="btn btn-info btn-xs openPopup" data-toggle="modal" data-target="#@contatoModal@cont"><i class="fa fa-plus"></i></button>
                                 </h3>
                                 <table class="table table-bordered">
                                     <thead>
@@ -57,7 +70,7 @@
                                     <tbody>
                                         @if (a.Contatos != null)
                                         {
-                                            @foreach (var c in a.Contatos.ToList())
+                                            @foreach (var c in a.Contatos.Where(b => b.AgendasID == a.Id).ToList())
                                             {
                                                 <tr>
                                                     <td>@c.Email</td>
@@ -76,7 +89,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal fade bd-example-modal-md" id="ContatoModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+                <div class="modal fade bd-example-modal-md" id="@contatoModal@cont" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
                     <div class="modal-dialog modal-md" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -94,17 +107,17 @@
                                             <h5><label>Telefone</label></h5>
                                         </div>
                                     </div>
-                                        <div class="row">
-                                            <div class="col-lg-4">
-                                                <input id="Email" type="email" class="form-control" name="Email" required />
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <input id="Telefone" type="text" class="form-control" onkeyup="mascara(this, mtel);" name="Telefone" maxlength="15"  required />
-                                            </div>
-                                            <div class="col-lg-3">
-                                                <button type="submit" class="btn btn-primary" title="Adicionar Contato">Adicionar Contato +</button>
-                                            </div>
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <input id="Email" type="email" class="form-control" name="Email" required />
                                         </div>
+                                        <div class="col-lg-4">
+                                            <input id="Telefone" type="text" class="form-control" onkeyup="mascara(this, mtel);" name="Telefone" maxlength="15" required />
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <button type="submit" class="btn btn-primary" title="Adicionar Contato">Adicionar Contato +</button>
+                                        </div>
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -113,9 +126,9 @@
                 cont = cont + 1;
             }
         }
-                        </div>
+    </div>
 
-                    </div>
+</div>
        
 <script>
     function mascara(o, f) {

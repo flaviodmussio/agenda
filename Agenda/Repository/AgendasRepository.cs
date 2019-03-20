@@ -59,7 +59,17 @@ namespace agenda.Repository
             return ctx.Agendas.Where(a => a.Status == true).ToList();
         }
 
-        IList<Agendas> IRepository<Agendas>.GetAll()
+        public List<Agendas> GetAllFiltro(string nome)
+        {
+            var agendas = new List<Agendas>();
+
+            if (nome != "")
+                agendas = ctx.Agendas.Where(a => a.Status == true && a.Nome.Contains(nome)).ToList();
+
+            return agendas;
+        }
+
+            IList<Agendas> IRepository<Agendas>.GetAll()
         {
             throw new NotImplementedException();
         }
